@@ -1,4 +1,5 @@
 import os
+import yaml
 import json
 import mlflow
 import base64
@@ -9,6 +10,8 @@ from dotenv import load_dotenv
 from json import JSONDecodeError
 from io import StringIO, BytesIO
 from mlflow import MlflowClient, MlflowException
+
+from models import model_handlers
 
 load_dotenv()
 
@@ -98,3 +101,25 @@ class Client:
             return None
 
         return images
+
+    def model_predict(self, name: str, df: pd.DataFrame):
+        run_id = self.client.get_registered_model(name).latest_versions[0].run_id
+        if not run_id:
+            return None
+
+        artifacts = self.client.list_artifacts(run_id)
+
+        artifacts = [artifact.path for artifact in artifacts if "model" in artifact.path and artifact.is_dir]
+
+        content = mlflow.artifacts.load_text(f"runs:/{run_id}/{artifacts[0]}/MLmodel")
+
+        content = yaml.safe_load(StringIO(content))
+
+        model_type = content["flavors"]["python_function"]["loader_module"].split(".")[1]
+
+        if model_type in list(model_handlers.keys()):
+            handler = model_handlers[model_type]
+            handler.load_model(model_uri=f"runs:/{run_id}/{artifacts[0]}")
+            return handler.predict(df)
+
+        return None

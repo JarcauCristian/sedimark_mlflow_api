@@ -1,5 +1,6 @@
+import pandas as pd
 import uvicorn
-from fastapi import FastAPI, Response
+from fastapi import FastAPI, Response, UploadFile
 from starlette.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from mlflow_client import Client
@@ -68,6 +69,15 @@ async def model_images(name: str):
     if images is None:
         return JSONResponse("Error getting the images!", status_code=500)
     return JSONResponse(images, status_code=200)
+
+
+@app.post("/model/predict")
+async def model_predict(name: str, file: UploadFile):
+    df = pd.read_csv(file.file)
+    predictions = client.model_predict(name, df)
+    if predictions is None:
+        return JSONResponse("Error making the predictions!", status_code=500)
+    return JSONResponse(predictions, status_code=200)
 
 
 if __name__ == '__main__':
