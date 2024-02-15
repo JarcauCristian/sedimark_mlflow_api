@@ -96,7 +96,8 @@ class Client:
                     buffered = BytesIO()
                     image_format = image.format if image.format else 'PNG'
                     image.save(buffered, format=image_format)
-                    images[str(artifact.path).split("/")[-1]] = (base64.b64encode(buffered.getvalue()).decode('utf-8'))
+                    images[str(artifact.path).split("/")[-1]] = (f"data:image/png;base64,"
+                                                                 f"{(base64.b64encode(buffered.getvalue()).decode('utf-8'))}")
         except MlflowException:
             return None
 

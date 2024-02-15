@@ -77,7 +77,7 @@ async def model_predict(name: str, file: UploadFile):
     predictions = client.model_predict(name, df)
     if predictions is None:
         return JSONResponse("Error making the predictions!", status_code=500)
-    return JSONResponse(predictions, status_code=200)
+    return JSONResponse(None, status_code=200)
 
 
 if __name__ == '__main__':
