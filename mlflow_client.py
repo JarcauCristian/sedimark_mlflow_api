@@ -6,15 +6,10 @@ import base64
 import pandas as pd
 from typing import Any, Dict
 from datetime import datetime
-from dotenv import load_dotenv
 from json import JSONDecodeError
 from io import StringIO, BytesIO
 from mlflow import MlflowClient, MlflowException
-
 from models import model_handlers
-
-load_dotenv()
-
 
 def flatten_dict(d: dict, parent_key='', sep='_'):
     items = []
