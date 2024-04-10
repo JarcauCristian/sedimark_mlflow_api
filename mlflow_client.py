@@ -67,6 +67,10 @@ class Client:
             pass
         return flatten_dict(parameters)
 
+    def model_versions(self, name: str) -> Dict[str, Any] | None:
+        versions = self.client.get_registered_model(name).latest_versions
+        return versions
+
     def model_metrics(self, name: str) -> Dict[str, Any] | None:
         run_id = self.client.get_registered_model(name).latest_versions[0].run_id
         metrics = self.client.get_run(run_id).data.metrics
@@ -124,3 +128,7 @@ class Client:
             return handler.predict(df)
 
         return None
+
+    @staticmethod
+    def model_register(run_id: str, model_name: str):
+        return mlflow.register_model(f"runs:/{run_id}", model_name)

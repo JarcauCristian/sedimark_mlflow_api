@@ -16,6 +16,10 @@ class Metrics(BaseModel):
     metrics: Dict[str, Any]
 
 
+class Versions(BaseModel):
+    versions: Dict[str, Any]
+
+
 class Dataset(BaseModel):
     dataset: str
 

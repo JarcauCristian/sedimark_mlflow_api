@@ -4,7 +4,9 @@ from fastapi import FastAPI, Response, UploadFile
 from starlette.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from mlflow_client import Client
+from pydantic import BaseModel
 from schemas import Models, Parameters, Metrics, Dataset, Images
+from dotenv import load_dotenv
 
 app = FastAPI()
 client = Client()
@@ -16,6 +18,11 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+class Register(BaseModel):
+    run_id: str
+    model_name: str
 
 
 @app.get("/", tags=["Server check endpoint"])
@@ -71,6 +78,15 @@ async def model_images(name: str):
     return JSONResponse(images, status_code=200)
 
 
+@app.get("/model/versions", tags=["Endpoints that gets all the versions of a specified register model"],
+         response_model=Metrics)
+async def model_metrics(name: str):
+    metrics = client.model_metrics(name)
+    if metrics is None:
+        return JSONResponse("Error getting the metrics!", status_code=500)
+    return JSONResponse(metrics, status_code=200)
+
+
 @app.post("/model/predict")
 async def model_predict(name: str, file: UploadFile):
     df = pd.read_csv(file.file)
@@ -78,6 +94,19 @@ async def model_predict(name: str, file: UploadFile):
     if predictions is None:
         return JSONResponse("Error making the predictions!", status_code=500)
     return JSONResponse(None, status_code=200)
+
+
+@app.post("/model/register")
+async def model_register(register: Register):
+    if "/" not in register.run_id:
+        return JSONResponse(status_code=400, content="The run_id needs to have at least one slash in it!")
+
+    result = client.model_register(register.run_id, register.model_name)
+
+    if not result:
+        return JSONResponse(status_code=500, content="Error registering model!")
+
+    return JSONResponse(status_code=200, content=result.name)
 
 
 if __name__ == '__main__':
