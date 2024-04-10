@@ -4,7 +4,7 @@ import json
 import mlflow
 import base64
 import pandas as pd
-from typing import Any, Dict
+from typing import Any, Dict, List
 from datetime import datetime
 from json import JSONDecodeError
 from io import StringIO, BytesIO
@@ -62,9 +62,9 @@ class Client:
             pass
         return flatten_dict(parameters)
 
-    def model_versions(self, name: str) -> Dict[str, Any] | None:
-        versions = self.client.get_registered_model(name).latest_versions
-        return versions
+    def model_versions(self, name: str) -> List[str] | None:
+        versions = self.client.search_model_versions(f"name='{name}'")
+        return [version.version for version in versions]
 
     def model_metrics(self, name: str) -> Dict[str, Any] | None:
         run_id = self.client.get_registered_model(name).latest_versions[0].run_id

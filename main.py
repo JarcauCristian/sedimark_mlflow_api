@@ -5,8 +5,10 @@ from starlette.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from mlflow_client import Client
 from pydantic import BaseModel
-from schemas import Models, Parameters, Metrics, Dataset, Images
+from schemas import Models, Parameters, Metrics, Dataset, Images, Versions
 from dotenv import load_dotenv
+
+load_dotenv()
 
 app = FastAPI()
 client = Client()
@@ -79,12 +81,12 @@ async def model_images(name: str):
 
 
 @app.get("/model/versions", tags=["Endpoints that gets all the versions of a specified register model"],
-         response_model=Metrics)
+         response_model=Versions)
 async def model_metrics(name: str):
-    metrics = client.model_metrics(name)
-    if metrics is None:
-        return JSONResponse("Error getting the metrics!", status_code=500)
-    return JSONResponse(metrics, status_code=200)
+    versions = client.model_versions(name)
+    if versions is None:
+        return JSONResponse("Error getting the model versions!", status_code=500)
+    return JSONResponse(versions, status_code=200)
 
 
 @app.post("/model/predict")

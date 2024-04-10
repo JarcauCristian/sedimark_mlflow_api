@@ -1,6 +1,5 @@
-from fastapi import File
 from pydantic import BaseModel
-from typing import Dict, Any
+from typing import Dict, Any, List
 
 
 class Models(BaseModel):
@@ -17,7 +16,7 @@ class Metrics(BaseModel):
 
 
 class Versions(BaseModel):
-    versions: Dict[str, Any]
+    versions: List[str]
 
 
 class Dataset(BaseModel):
