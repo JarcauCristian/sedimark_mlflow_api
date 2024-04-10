@@ -37,7 +37,7 @@ class Client:
 
     def models(self):
         returns = []
-        models_list = self.client.search_registered_models()
+        models_list = self.client.search_registered_models("tag.mage_model = 'true'")
 
         if not models_list:
             return None
@@ -64,6 +64,7 @@ class Client:
 
     def model_versions(self, name: str) -> List[Dict[str, str]] | None:
         versions = self.client.search_model_versions(f"name='{name}'")
+
         return [{"version": version.version,
                  "type": "" if version.tags.get("model_type") is None else version.tags["model_type"]}
                 for version in versions]
