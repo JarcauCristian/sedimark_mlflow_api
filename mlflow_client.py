@@ -51,8 +51,9 @@ class Client:
 
         return returns
 
-    def model_parameters(self, name: str) -> Dict[str, Any] | None:
-        run_id = self.client.get_registered_model(name).latest_versions[0].run_id
+    def model_parameters(self, name: str, version: str) -> Dict[str, Any] | None:
+        run_id = self.client.get_registered_model(name).latest_versions[0].run_id if version is None \
+            else self.client.get_model_version(name, version).run_id
         if not run_id:
             return None
         parameters = self.client.get_run(run_id).data.params
@@ -69,13 +70,15 @@ class Client:
                  "type": "" if version.tags.get("model_type") is None else version.tags["model_type"]}
                 for version in versions]
 
-    def model_metrics(self, name: str) -> Dict[str, Any] | None:
-        run_id = self.client.get_registered_model(name).latest_versions[0].run_id
+    def model_metrics(self, name: str, version: str) -> Dict[str, Any] | None:
+        run_id = self.client.get_registered_model(name).latest_versions[0].run_id if version is None \
+            else self.client.get_model_version(name, version).run_id
         metrics = self.client.get_run(run_id).data.metrics
         return metrics
 
-    def model_dataset(self, name: str):
-        run_id = self.client.get_registered_model(name).latest_versions[0].run_id
+    def model_dataset(self, name: str, version: str):
+        run_id = self.client.get_registered_model(name).latest_versions[0].run_id if version is None \
+            else self.client.get_model_version(name, version).run_id
         if not run_id:
             return None
 
@@ -85,8 +88,9 @@ class Client:
         except MlflowException:
             return None
 
-    def model_images(self, name: str):
-        run_id = self.client.get_registered_model(name).latest_versions[0].run_id
+    def model_images(self, name: str, version: str):
+        run_id = self.client.get_registered_model(name).latest_versions[0].run_id if version is None \
+            else self.client.get_model_version(name, version).run_id
         if not run_id:
             return None
         try:

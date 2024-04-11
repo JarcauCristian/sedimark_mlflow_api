@@ -43,8 +43,8 @@ async def models():
 
 @app.get("/model/parameters", tags=["Endpoints that gets all the parameters of a specified register model"],
          response_model=Parameters)
-async def model_parameters(name: str):
-    parameters = client.model_parameters(name)
+async def model_parameters(name: str, version: str = None):
+    parameters = client.model_parameters(name, version)
     if parameters is None:
         return JSONResponse("Error getting the parameters!", status_code=500)
     return JSONResponse(parameters, status_code=200)
@@ -52,8 +52,8 @@ async def model_parameters(name: str):
 
 @app.get("/model/metrics", tags=["Endpoints that gets all the metrics of a specified register model"],
          response_model=Metrics)
-async def model_metrics(name: str):
-    metrics = client.model_metrics(name)
+async def model_metrics(name: str, version: str = None):
+    metrics = client.model_metrics(name, version)
     if metrics is None:
         return JSONResponse("Error getting the metrics!", status_code=500)
     return JSONResponse(metrics, status_code=200)
@@ -61,8 +61,8 @@ async def model_metrics(name: str):
 
 @app.get("/model/dataset", tags=["Endpoints that gets the train dataset of a specified register model"],
          response_model=Dataset)
-async def model_dataset(name: str):
-    dataset = client.model_dataset(name)
+async def model_dataset(name: str, version: str = None):
+    dataset = client.model_dataset(name, version)
     if dataset is None:
         return JSONResponse("Error getting the dataset!", status_code=500)
 
@@ -73,8 +73,8 @@ async def model_dataset(name: str):
 
 @app.get("/model/images", tags=["Endpoints that gets all the images of a specified register model"],
          response_model=Images)
-async def model_images(name: str):
-    images = client.model_images(name)
+async def model_images(name: str, version: str = None):
+    images = client.model_images(name, version)
     if images is None:
         return JSONResponse("Error getting the images!", status_code=500)
     return JSONResponse(images, status_code=200)
@@ -82,7 +82,7 @@ async def model_images(name: str):
 
 @app.get("/model/versions", tags=["Endpoints that gets all the versions of a specified register model"],
          response_model=Versions)
-async def model_metrics(name: str):
+async def model_versions(name: str):
     versions = client.model_versions(name)
     if versions is None:
         return JSONResponse("Error getting the model versions!", status_code=500)
