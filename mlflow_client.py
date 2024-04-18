@@ -91,12 +91,14 @@ class Client:
     def model_images(self, name: str, version: str):
         run_id = self.client.get_registered_model(name).latest_versions[0].run_id if version is None \
             else self.client.get_model_version(name, version).run_id
+
         if not run_id:
             return None
         try:
-            artifacts = self.client.list_artifacts(run_id, path="artifacts")
+            artifacts = self.client.list_artifacts(run_id, path="figures")
             images = {}
             for artifact in artifacts:
+                print(artifact.path)
                 if ".png" in artifact.path:
                     image = mlflow.artifacts.load_image(f"runs:/{run_id}/{artifact.path}")
                     buffered = BytesIO()
