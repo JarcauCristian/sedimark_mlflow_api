@@ -94,7 +94,7 @@ class Client:
         if not run_id:
             return None
         try:
-            artifacts = self.client.list_artifacts(run_id, path="model")
+            artifacts = self.client.list_artifacts(run_id, path="artifacts")
             images = {}
             for artifact in artifacts:
                 if ".png" in artifact.path:
