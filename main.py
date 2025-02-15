@@ -89,6 +89,22 @@ async def model_versions(name: str):
     return JSONResponse(versions, status_code=200)
 
 
+@app.get("/model/package", tags=["Endpoints that packages the model to be saved in Mage AI."])
+async def model_package(name: str):
+    try:
+        packaged_model = client.model_package(name)
+    except Exception as _:
+        return JSONResponse("Error packeing the model!", status_code=500)
+    if packaged_model is None:
+        return JSONResponse("Error packeing the model!", status_code=500)
+
+    return Response(
+        content=packaged_model.getvalue(),
+        media_type="application/octet-stream",
+        headers={"Content-Disposition": f"attachment; filename={name}.bin"}
+    )
+
+
 @app.post("/model/predict")
 async def model_predict(name: str, file: UploadFile):
     df = pd.read_csv(file.file)

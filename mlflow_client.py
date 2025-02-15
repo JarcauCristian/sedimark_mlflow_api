@@ -32,7 +32,7 @@ class Client:
         os.environ['MLFLOW_TRACKING_INSECURE_TLS'] = os.getenv('MLFLOW_TRACKING_INSECURE_TLS')
         os.environ['MLFLOW_HTTP_REQUEST_TIMEOUT'] = "1000"
 
-        mlflow.set_tracking_uri("http://62.72.21.79:5000")
+        mlflow.set_tracking_uri(os.getenv("MLFLOW_TRACKING_URI"))
         self.client = MlflowClient()
 
     def models(self):
@@ -130,6 +130,28 @@ class Client:
             handler = model_handlers[model_type]
             handler.load_model(model_uri=f"runs:/{run_id}/{artifacts[0]}")
             return handler.predict(df)
+
+        return None
+
+    def model_package(self, name: str):
+        run_id = self.client.get_registered_model(name).latest_versions[0].run_id
+
+        if not run_id:
+            return None
+        
+        artifacts = self.client.list_artifacts(run_id)
+
+        artifacts = [artifact.path for artifact in artifacts if "model" in artifact.path and artifact.is_dir]
+
+        content = mlflow.artifacts.load_text(f"runs:/{run_id}/{artifacts[0]}/MLmodel")
+
+        content = yaml.safe_load(StringIO(content))
+
+        model_type = content["flavors"]["python_function"]["loader_module"].split(".")[1]
+
+        if model_type in list(model_handlers.keys()):
+            handler = model_handlers[model_type]
+            return handler.save_model(f"runs:/{run_id}/{artifacts[0]}")
 
         return None
 
